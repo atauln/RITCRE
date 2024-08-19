@@ -2,3 +2,5 @@ sentry-sdk[fastapi]
 fastapi
 fastapi[standard]
 python-dotenv
+llama-index-graph-stores-neo4j
+alive-progress

@@ -1,5 +1,5 @@
 from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
-from llama_index.core.graph_stores.types import LabelledNode, Relation
+from llama_index.core.graph_stores.types import LabelledNode
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError as XMLParseError
 from multiprocessing import Pool
@@ -132,12 +132,15 @@ def load_course_info(course_code: str, db: Neo4jPropertyGraphStore = None):
     course_description = course.find('description').text if course.find('description') is not None else "No description available"
     typically_offered = course.find('typically_offered').text if course.find('typically_offered') is not None else "Not specified"
     course_prerequisites = course.find('requisites').text if course.find('requisites') is not None else "None"
+    credits = course.find('credits').text[-1] if course.find('credits') is not None else "-1"
     if not course_description:
         course_description = "No description available"
     if not typically_offered:
         typically_offered = "Not specified"
     if not course_prerequisites:
         course_prerequisites = "None"
+    if not credits:
+        credits = "-1"
     course_prerequisites = course_prerequisites.replace("Prerequisite: ", "").replace(" or equivalent course.", "")
 
     if not db:
@@ -152,7 +155,8 @@ def load_course_info(course_code: str, db: Neo4jPropertyGraphStore = None):
         "data": {
             "description": course_description.strip(),
             "typically_offered": typically_offered.strip(),
-            "prerequisites": course_prerequisites.strip()
+            "prerequisites": course_prerequisites.strip(),
+            "credits": credits.strip()
         }
     }
 

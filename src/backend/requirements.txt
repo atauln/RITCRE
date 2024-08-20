@@ -5,3 +5,4 @@ python-dotenv
 llama-index-graph-stores-neo4j
 alive-progress
 RateMyProfessorAPI
+llama-index-llms-gemini

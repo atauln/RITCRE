@@ -43,7 +43,7 @@ def drop_all(db: Neo4jPropertyGraphStore = None):
 def get_nodes_of_label(label: str, db: Neo4jPropertyGraphStore = None) -> list[LabelledNode]:
     if not db:
         db = get_db()
-    return db.structured_query(f"MATCH (n:{label}) RETURN n")
+    return [n['n'] for n in db.structured_query(f"MATCH (n:{label}) RETURN n")]
 
 # UPSTREAM LOAD FUNCTIONS
 def load_programs(db: Neo4jPropertyGraphStore = None):
@@ -167,15 +167,15 @@ def load(graph_store: Neo4jPropertyGraphStore = None):
     with Pool(NUM_PROCESSES) as p:
         with alive_bar(len(programs)) as bar:
             bar.title = 'Loading Courses'
-            p.map(load_courses, [program['n']['program_code'] for program in programs])
+            p.map(load_courses, [program['program_code'] for program in programs])
             for _ in range(len(programs)):
                 bar()
     courses = get_nodes_of_label('Course')
     with Pool(NUM_PROCESSES) as p:
         with alive_bar(len(courses)) as bar:
             bar.title = 'Loading Course Info'
-            p.map(load_course_info, [course['n']['code'] for course in courses])
+            p.map(load_course_info, [course['code'] for course in courses])
             for _ in range(len(courses)):
                 bar()
-
-load()
+if __name__ == "__main__":
+    load()

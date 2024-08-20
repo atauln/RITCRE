@@ -76,6 +76,12 @@ def get_schedule_link(schedule: list[dict]) -> str:
     return response.json()['url']
         
 if __name__ == "__main__":
-    schedules = get_schedules(["ISTE-230", "SWEN-256", "SWEN-444"], [(8*60, 9*60, ["Mon"]), (10*60, 11*60, ["Tue", "Fri"])])
+    schedules = get_schedules(
+        courses=["ISTE-430-01", "SWEN-444", "SWEN-343", "CSCI-261"], 
+        timeblocks=[
+            (15*60+30, 17*60, ["Tue", "Thu"]), 
+            (13*60, 17*60, ["Fri"]), 
+            (9*60, 11*60, ["Mon", "Tue", "Wed", "Thu", "Fri"])]
+    )
     print(f"Found {len(schedules)} schedules")
     print(get_schedule_link(schedules[0]))

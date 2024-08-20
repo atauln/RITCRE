@@ -1,9 +1,19 @@
+from typing import Optional
 import requests
 from alive_progress import alive_bar
 import json
 
 from multiprocessing import Pool
 
+# RATE MY PROFESSOR SETUP
+import ratemyprofessor
+from ratemyprofessor.professor import Professor
+for school in ratemyprofessor.get_schools_by_name("Rochester Institute of Technology"):
+    if school.name.upper() == "ROCHESTER INSTITUTE OF TECHNOLOGY":
+        RMP_SCHOOL = school
+        break
+else:
+    print("[RMP] School not found")
 
 CURRENT_TERM = "20241"
 
@@ -74,7 +84,11 @@ def get_schedule_link(schedule: list[dict]) -> str:
     if 'error' in response.json():
         return None
     return response.json()['url']
-        
+
+def lookup_professor(professor: str) -> Optional[Professor]:
+    professor = ratemyprofessor.get_professor_by_school_and_name(RMP_SCHOOL, professor)
+    return professor
+
 if __name__ == "__main__":
     schedules = get_schedules(
         courses=["ISTE-430-01", "SWEN-444", "SWEN-343", "CSCI-261"], 

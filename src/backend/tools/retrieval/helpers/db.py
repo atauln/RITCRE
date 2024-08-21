@@ -20,6 +20,15 @@ NUM_PROCESSES = int(os.getenv("NUM_PROCESSES"))
 
 GRAPH_STORE = None
 
+
+# HELPER FUNCTIONS
+def find_max_id(label: str, unique_key: str) -> int:
+    nodes = get_nodes_of_label(label)
+    max_id = 0
+    for node in nodes:
+        max_id = max(max_id, node[unique_key])
+    return max_id
+
 def fetch_url(url: str) -> ElementTree.Element:
     response = requests.get(url, stream=True)
     return ElementTree.fromstring(response.content)
@@ -40,7 +49,7 @@ def drop_all(db: Neo4jPropertyGraphStore = None):
         db = get_db()
     db.structured_query("MATCH (n) DETACH DELETE n")
 
-def get_nodes_of_label(label: str, db: Neo4jPropertyGraphStore = None) -> list[LabelledNode]:
+def get_nodes_of_label(label: str, db: Neo4jPropertyGraphStore = None) -> list[dict]:
     if not db:
         db = get_db()
     return [n['n'] for n in db.structured_query(f"MATCH (n:{label}) RETURN n")]

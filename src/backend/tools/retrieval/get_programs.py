@@ -1,4 +1,4 @@
-from db_helper import get_db
+from tools.retrieval.helpers.db import get_db
 
 def get_programs() -> str:
     """Gets the programs from the database.

@@ -1,4 +1,4 @@
-from db_helper import get_db
+from tools.retrieval.helpers.db import get_db
 
 def get_db_schema() -> str:
     """Gets the schema of the database.

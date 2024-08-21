@@ -1,15 +1,29 @@
-from helpers.schedule import get_schedule_link
+from tools.retrieval.helpers.db import get_nodes_of_label
+from tools.retrieval.helpers.schedule import get_schedule_link as get_sch_link
+import json
 
-def get_schedule_link(schedule: list[dict]) -> str:
-    """Get a link to a schedule. This should be done after getting a schedule from get_potential_schedules.
+def get_schedule_link(schedule_id: int) -> str:
+    """Get schedule link for a schedule ID.
 
     Args:
-        schedule (list[dict]): The schedule to get a link for. (obtained from get_potential_schedules)
-
+        schedule_id (int): The schedule ID to get the link for.
+    
     Returns:
-        str: Link to the schedule
+        str: Schedule link
     """
-    return get_schedule_link(schedule)
+    schedules = get_nodes_of_label("Schedule")
+    schedule = None
+    for s in schedules:
+        if s['schedule_id'] == schedule_id:
+            schedule = s
+            break
+    if not schedule:
+        raise Exception("Schedule not found.")
+    try:
+        schedule_link = get_sch_link(json.loads(schedule['schedule']))
+    except:
+        raise Exception("Unable to generate URL for schedule. Please try again later.")
+    return schedule_link
 
 if __name__ == '__main__':
-    pass
+    print(get_schedule_link(3))

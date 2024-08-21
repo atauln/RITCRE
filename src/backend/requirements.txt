@@ -6,3 +6,5 @@ llama-index-graph-stores-neo4j
 alive-progress
 RateMyProfessorAPI
 llama-index-llms-gemini
+llama-index-llms-azure-openai
+llama-index-llms-vertex

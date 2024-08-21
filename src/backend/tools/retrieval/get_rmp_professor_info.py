@@ -1,6 +1,6 @@
-from helpers.schedule import lookup_professor
+from tools.retrieval.helpers.schedule import lookup_professor
 
-def get_professor_info(professor_str: str) -> str:
+def get_rmp_professor_info(professor_str: str) -> str:
     """Get professor info from the database.
 
     Args:
@@ -10,7 +10,7 @@ def get_professor_info(professor_str: str) -> str:
         str: Professor rating overview
     """
     professor = lookup_professor(professor_str)
-    if professor is not None:
+    if professor is not None and professor.rating is not None and professor.name == professor_str:
         professor_info = ""
         professor_info += "%s works in the %s Department of %s.\n" % (professor.name, professor.department, professor.school.name)
         professor_info += "Rating: %s / 5\n" % professor.rating
@@ -24,5 +24,5 @@ def get_professor_info(professor_str: str) -> str:
     return "Professor not found."
 
 if __name__ == '__main__':
-    print(get_professor_info("Christian Newman"))
+    print(get_rmp_professor_info("Christian Newman"))
     

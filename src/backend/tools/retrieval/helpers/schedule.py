@@ -29,7 +29,7 @@ def get_course_options(course_code: str) -> dict:
     response = session.post(url, data=payload, headers=headers)
     return response.json()
 
-def get_schedules(course_names: list[str], time_blocks: list[tuple] = None) -> list[dict]:
+def get_schedules(course_names: list[str], time_blocks: list[tuple] = None) -> list[list[dict]]:
     # timeblocks are tuples of (start, end, days)
     if not course_names:
         return []

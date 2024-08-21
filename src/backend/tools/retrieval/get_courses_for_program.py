@@ -1,4 +1,4 @@
-from backend.tools.retrieval.helpers.db_helper import get_db
+from tools.retrieval.helpers.db import get_db
 
 def get_courses_for_program(program: str) -> list:
     """Get courses for a program from the database.

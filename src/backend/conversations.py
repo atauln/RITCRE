@@ -1,14 +1,6 @@
 from typing import Optional
-from db import get_nodes_of_label, get_db
+from tools.retrieval.helpers.db import get_db, find_max_id
 from llama_index.core.graph_stores.types import LabelledNode
-
-# HELPER FUNCTIONS
-def find_max_id(label: str, unique_key: str) -> int:
-    nodes = get_nodes_of_label(label)
-    max_id = 0
-    for node in nodes:
-        max_id = max(max_id, node[unique_key])
-    return max_id
 
 # CREATE METHODS
 def create_user(username: str) -> int:

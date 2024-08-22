@@ -13,6 +13,8 @@ from llama_index.core.agent import (
 
 from google.oauth2 import service_account
 
+
+
 from tools.retrieval.get_db_schema import get_db_schema
 from tools.retrieval.get_programs import get_programs
 from tools.retrieval.get_potential_schedules import get_potential_schedule
@@ -21,8 +23,14 @@ from tools.retrieval.get_courses import get_courses
 from tools.retrieval.get_courses_for_program import get_courses_for_program
 from tools.retrieval.get_schedule_link import get_schedule_link
 from tools.retrieval.get_course_overview_for_schedule import get_course_overview_for_schedule
+from tools.retrieval.get_stored_schedule import get_stored_schedule
+from tools.retrieval.get_rmp_professor_info_multithreaded import get_rmp_professor_info_multithreaded
 
 from tools.retrieval.helpers.db import get_db
+
+from output_manager import OutputManager
+
+from time import sleep
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -39,13 +47,14 @@ GEMINI_MODEL =                          os.getenv('GEMINI_MODEL')
 def get_tools():
     tools = [FunctionTool.from_defaults(tool) for tool in [
         get_db_schema,
-        get_programs,
+        # get_programs,
         get_potential_schedule,  ## CURRENTLY NOT WORKING
         get_rmp_professor_info,
-        get_courses,
         get_courses_for_program,
         get_schedule_link,
-        get_course_overview_for_schedule
+        get_course_overview_for_schedule,
+        get_stored_schedule,
+        get_rmp_professor_info_multithreaded
     ]]
     return tools
 
@@ -56,6 +65,7 @@ def get_llm():
         credentials=credentials,
         model='gemini-1.5-flash',
         project=credentials.project_id,
+        max_tokens=8092
     )
     # if not AZURE_OPENAI_API_KEY:
     #     llm = Gemini(
@@ -72,29 +82,7 @@ def get_llm():
     #     )
     return llm
 
-def get_planner_agent():
-    worker = FunctionCallingAgentWorker.from_tools(
-        tools=get_tools(),
-        llm=get_llm(),
-        verbose=True
-    )
-    planner_agent = StructuredPlannerAgent(
-        agent_worker=worker,
-        tools=get_tools(),
-        llm=get_llm(),
-        verbose=True
-    )
-    return planner_agent
-
-def get_agent_runner():
-    worker = FunctionCallingAgentWorker.from_tools(
-        tools=get_tools(),
-        llm=get_llm(),
-        verbose=True
-    )
-    return AgentRunner(agent_worker=worker, llm=get_llm(), verbose=True)
-
-def get_react_agent():
+def get_agent():
     react_agent = ReActAgent.from_tools(
         tools=get_tools(),
         llm=get_llm(),
@@ -106,4 +94,43 @@ def get_react_agent():
 if __name__ == '__main__':
     
     # print(get_agent_runner().chat("Can you tell me which courses are in the SOFTENG-BS program?"))
-    print(get_react_agent().chat("Can you give me information on a schedule with the courses CSCI-141, CSCI-142 and GCIS-123? Please give me professor ratings for each course as well. Try to make it a report style response, with as much information as possible."))
+    om = OutputManager()
+    om.start()
+    response = get_agent().chat("""
+                            I am currently enrolled in the courses CSCI-261-03, ISTE-430-01, SWEN-343-01, SWEN-514, and SWEN-444-02. 
+                           Generate a schedule for me, then provide an analysis of the workload intensity and days on which I have more free time.
+                           Start of your response with a visual, time-based representation of the schedule. Include the following information:
+                            - The course code
+                            - The course name
+                           """)
+    sleep(0)
+    print("Starting chat")
+    # response = get_agent().chat("""
+    # Give me a list of the courses in the SOFTENG-BS program.
+    # """)
+    om.stop()
+    messages = om.get_messages()
+    print(response)
+    # print([message for message in messages if 'Action' in message])
+    # print(response)
+    # om.flush()
+    om.clear_messages()
+    # om.start()
+    user_message = f"""
+        Can you create a list of the functions that were called in this terminal log?
+        Format like this:
+        "Derived Function Name in English" (Function Name in Code) Input Parameters
+
+        Logs:
+        {[message for message in messages if 'Action' in message]}
+        """
+    response = get_llm().chat(
+        [
+            ChatMessage(content=user_message, role=MessageRole.USER),
+        ]
+    )
+    # om.stop()
+    print()
+    print(response)
+    # response = get_agent().chat("""What is the rating for my professor Sean Strout?""")
+    # print(response)

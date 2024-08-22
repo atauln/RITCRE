@@ -16,7 +16,8 @@ def get_courses_for_program(program: str) -> list:
         {
             "code": result['code'],
             "name": result['name'],
-            "credits": result['credits']
+            "credits": result['credits'],
+            "prerequisites": result['prerequisites'] if 'prerequisites' in result else None,
         }
         for result in results
     ]

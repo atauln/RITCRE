@@ -81,7 +81,7 @@ def get_schedule_link(schedule: list[dict]) -> Optional[str]:
         return None
     return response.json()['url']
 
-def lookup_professor(professor: str) -> Optional[Professor]:
+def lookup_professor(professor_name: str) -> Optional[Professor]:
     global RMP_SCHOOL
     if not RMP_SCHOOL:
         for school in ratemyprofessor.get_schools_by_name("Rochester Institute of Technology"):
@@ -90,7 +90,12 @@ def lookup_professor(professor: str) -> Optional[Professor]:
                 break
         else:
             print("[RMP] School not found")
-    professor = ratemyprofessor.get_professor_by_school_and_name(RMP_SCHOOL, professor)
+    professors = ratemyprofessor.get_professors_by_school_and_name(RMP_SCHOOL, professor_name)
+    professor = None
+    for p in professors:
+        if p.school.name.upper() == "ROCHESTER INSTITUTE OF TECHNOLOGY":
+            professor = p
+            break
     return professor
 
 if __name__ == "__main__":
